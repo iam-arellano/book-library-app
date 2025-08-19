@@ -71,6 +71,6 @@ app.get('/delete/:id', async (req, res) => {
 });
 
 // Start Server
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
-});
+app.listen(3000, () => console.log('Server running on port 3000'));
+
+module.exports = app;
