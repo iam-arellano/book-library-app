@@ -1,37 +1,31 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const bodyParser = require('body-parser');
 const path = require('path');
 
 const app = express();
-const PORT = 3000;
-
-// Enable CORS
+app.use(express.json());
 app.use(cors());
-
-// Body parser middleware
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
-
-// Serve static files (CSS)
 app.use(express.static(path.join(__dirname, 'public')));
 
-// MongoDB connection
+// Get MongoDB connection details from environment variables
 const mongoHost = process.env.MONGO_HOST || 'mongodb';  // Default to 'mongodb' service name
 const mongoPort = process.env.MONGO_PORT || '27017';    // Default MongoDB port
-const mongoDB = process.env.MONGO_DB || 'bookLibrary';  // Default database name
-const mongoUser = process.env.MONGO_USER;               // MongoDB username (if applicable)
-const mongoPass = process.env.MONGO_PASS;               // MongoDB password (if applicable)
+const mongoDB = process.env.MONGO_DB || 'bookLibrary';       // Default database name
+const mongoUser = process.env.MONGO_USER;               // MongoDB username
+const mongoPass = process.env.MONGO_PASS;               // MongoDB password
 
-const mongoURI = `mongodb://${mongoUser ? `${mongoUser}:${mongoPass}@` : ''}${mongoHost}:${mongoPort}/${mongoDB}`;
+// Construct the MongoDB connection URI
+const mongoURI = `mongodb://${mongoUser}:${mongoPass}@${mongoHost}:${mongoPort}/${mongoDB}?authSource=admin`;
+
+// Connect to MongoDB
 mongoose.connect(mongoURI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
+    useNewUrlParser: true,
+    useUnifiedTopology: true
 }).then(() => {
-  console.log('MongoDB connected successfully');
-}).catch(err => {
-  console.error('MongoDB connection error:', err);
+    console.log('MongoDB connected');
+}).catch((error) => {
+    console.error('MongoDB connection error:', error);
 });
 
 // Book Schema
