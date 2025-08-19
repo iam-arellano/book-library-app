@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Book Library</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Book Library</h1>
+    
+    <!-- Add Book Form -->
+    <form action="/add" method="POST">
+      <input type="text" name="title" placeholder="Book Title" required>
+      <input type="text" name="author" placeholder="Author" required>
+      <input type="number" name="year" placeholder="Year" required>
+      <button type="submit">Add Book</button>
+    </form>
+
+    <h2>Books List</h2>
+    <ul>
+      {{#each books}}
+        <li>
+          <strong>{{this.title}}</strong> by {{this.author}} ({{this.year}})
+          <a href="/edit/{{this._id}}">Edit</a> | 
+          <a href="/delete/{{this._id}}">Delete</a>
+        </li>
+      {{/each}}
+    </ul>
+  </div>
+</body>
+</html>
