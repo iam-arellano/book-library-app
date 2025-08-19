@@ -1,11 +1,14 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const cors = require('cors');
 const bodyParser = require('body-parser');
 const path = require('path');
 
-// Initialize app
 const app = express();
 const PORT = 3000;
+
+// Enable CORS
+app.use(cors());
 
 // Body parser middleware
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -15,9 +18,20 @@ app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // MongoDB connection
-mongoose.connect('mongodb://localhost:27017/bookLibrary', {
+const mongoHost = process.env.MONGO_HOST || 'mongodb';  // Default to 'mongodb' service name
+const mongoPort = process.env.MONGO_PORT || '27017';    // Default MongoDB port
+const mongoDB = process.env.MONGO_DB || 'bookLibrary';  // Default database name
+const mongoUser = process.env.MONGO_USER;               // MongoDB username (if applicable)
+const mongoPass = process.env.MONGO_PASS;               // MongoDB password (if applicable)
+
+const mongoURI = `mongodb://${mongoUser ? `${mongoUser}:${mongoPass}@` : ''}${mongoHost}:${mongoPort}/${mongoDB}`;
+mongoose.connect(mongoURI, {
   useNewUrlParser: true,
   useUnifiedTopology: true
+}).then(() => {
+  console.log('MongoDB connected successfully');
+}).catch(err => {
+  console.error('MongoDB connection error:', err);
 });
 
 // Book Schema
