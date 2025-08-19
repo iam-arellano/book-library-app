@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Library</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Book Library</h1>
+
+        <!-- Add Book Form -->
+        <form action="/add" method="POST" class="add-book-form">
+            <input type="text" name="book" placeholder="Enter book name" required>
+            <button type="submit">Add Book</button>
+        </form>
+
+        <h2>Book List</h2>
+        <ul class="book-list">
+            {% for book in books %}
+            <li>
+                <span>{{ book.book }}</span>
+                <a href="{{ url_for('delete_book', id=book.id) }}" class="delete-btn">Delete</a>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</body>
+</html>
