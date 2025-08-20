@@ -9,68 +9,99 @@ app.use(cors());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Get MongoDB connection details from environment variables
-const mongoHost = process.env.MONGO_HOST || 'mongodb';  // Default to 'mongodb' service name
-const mongoPort = process.env.MONGO_PORT || '27017';    // Default MongoDB port
-const mongoDB = process.env.MONGO_DB || 'bookLibrary';       // Default database name
-const mongoUser = process.env.MONGO_USER;               // MongoDB username
-const mongoPass = process.env.MONGO_PASS;               // MongoDB password
+const mongoHost = process.env.MONGO_HOST || 'mongodb';        // Default to Docker service name
+const mongoPort = process.env.MONGO_PORT || '27017';          // Default MongoDB port
+const mongoDB = process.env.MONGO_DB || 'bookLibrary';        // Database name
+const mongoUser = process.env.MONGO_USER;                     // Username (set in docker-compose)
+const mongoPass = process.env.MONGO_PASS;                     // Password (set in docker-compose)
 
 // Construct the MongoDB connection URI
 const mongoURI = `mongodb://${mongoUser}:${mongoPass}@${mongoHost}:${mongoPort}/${mongoDB}?authSource=admin`;
 
-// Connect to MongoDB
-mongoose.connect(mongoURI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-}).then(() => {
-    console.log('MongoDB connected');
-}).catch((error) => {
-    console.error('MongoDB connection error:', error);
+// Log the config (for debugging only - remove if in production)
+console.log('🔧 MongoDB Config:', {
+  mongoHost,
+  mongoPort,
+  mongoDB,
+  mongoUser,
+  mongoPass
 });
 
-// Book Schema
+// Retry logic to wait for MongoDB to be ready
+const connectWithRetry = () => {
+  console.log('🔁 Trying to connect to MongoDB...');
+  mongoose.connect(mongoURI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+  })
+  .then(() => {
+    console.log('✅ MongoDB connected');
+  })
+  .catch((err) => {
+    console.error('❌ MongoDB connection error:', err.message);
+    setTimeout(connectWithRetry, 5000); // Retry every 5 seconds
+  });
+};
+
+connectWithRetry();
+
+// Define book schema
 const bookSchema = new mongoose.Schema({
   title: String,
   author: String,
   year: Number
 });
 
-// Book Model
+// Create model from schema
 const Book = mongoose.model('Book', bookSchema);
 
 // Routes
+
+// Get all books
 app.get('/', async (req, res) => {
-  const books = await Book.find();
-  res.render('index', { books });
+  try {
+    const books = await Book.find();
+    res.json(books); // Changed to JSON instead of rendering a view
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch books' });
+  }
 });
 
-// Add Book
+// Add a new book
 app.post('/add', async (req, res) => {
-  const { title, author, year } = req.body;
-  const newBook = new Book({ title, author, year });
-  await newBook.save();
-  res.redirect('/');
+  try {
+    const { title, author, year } = req.body;
+    const newBook = new Book({ title, author, year });
+    await newBook.save();
+    res.status(201).json({ message: 'Book added' });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to add book' });
+  }
 });
 
-// Edit Book
-app.get('/edit/:id', async (req, res) => {
-  const book = await Book.findById(req.params.id);
-  res.render('edit', { book });
-});
-
+// Edit a book
 app.post('/edit/:id', async (req, res) => {
-  const { title, author, year } = req.body;
-  await Book.findByIdAndUpdate(req.params.id, { title, author, year });
-  res.redirect('/');
+  try {
+    const { title, author, year } = req.body;
+    await Book.findByIdAndUpdate(req.params.id, { title, author, year });
+    res.json({ message: 'Book updated' });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to update book' });
+  }
 });
 
-// Delete Book
+// Delete a book
 app.get('/delete/:id', async (req, res) => {
-  await Book.findByIdAndDelete(req.params.id);
-  res.redirect('/');
+  try {
+    await Book.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Book deleted' });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to delete book' });
+  }
 });
 
-// Start Server
-app.listen(3000, () => console.log('Server running on port 3000'));
+// Start server
+const PORT = 3000;
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
 
 module.exports = app;
