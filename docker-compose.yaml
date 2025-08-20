@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo
+    container_name: mongodb_container_book
+    restart: always
+    ports:
+      - "27018:27017"
+    networks:
+      - network_book
+    volumes:
+      - mongo_book:/data/db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=myuser
+      - MONGO_INITDB_ROOT_PASSWORD=mypassword
+      - MONGO_INITDB_DATABASE=bookLibrary
+
+  app:
+    build: .
+    container_name: container_book
+    restart: always
+    ports:
+      - "3001:3000"
+    depends_on:
+      - mongodb
+    networks:
+      - network_book
+    environment:
+      - MONGO_HOST=mongodb
+      - MONGO_PORT=27017
+      - MONGO_DB=bookLibrary
+      - MONGO_USER=myuser
+      - MONGO_PASS=mypassword
+
+  mongo-express:
+    image: mongo-express
+    container_name: mongo_express_book
+    restart: always
+    ports:
+      - "8082:8081"
+    networks:
+      - network_book
+    depends_on:
+      - mongodb
+    environment:
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=myuser
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=mypassword
+      - ME_CONFIG_MONGODB_SERVER=mongodb  # Service name of MongoDB
+      - ME_CONFIG_BASICAUTH_USERNAME=admin  # Optional: Username for accessing Mongo Express
+      - ME_CONFIG_BASICAUTH_PASSWORD=admin  # Optional: Password for accessing Mongo Express
+
+ #     ME_CONFIG_MONGODB_SERVER: mongodb
+ #     ME_CONFIG_MONGODB_PORT: 27017
+ #     ME_CONFIG_BASICAUTH_USERNAME: admin
+ #     ME_CONFIG_BASICAUTH_PASSWORD: password
+
+
+networks:
+  network_book:
+
+
+
+volumes:
+  mongo_book:
