@@ -11,7 +11,7 @@
     <h1>Book Library</h1>
     
     <!-- Add Book Form -->
-    <form action="/add" method="POST">
+    <form id="bookForm">
       <input type="text" name="title" placeholder="Book Title" required>
       <input type="text" name="author" placeholder="Author" required>
       <input type="number" name="year" placeholder="Year" required>
@@ -19,15 +19,84 @@
     </form>
 
     <h2>Books List</h2>
-    <ul>
-      {{#each books}}
-        <li>
-          <strong>{{this.title}}</strong> by {{this.author}} ({{this.year}})
-          <a href="/edit/{{this._id}}">Edit</a> | 
-          <a href="/delete/{{this._id}}">Delete</a>
-        </li>
-      {{/each}}
-    </ul>
+    <ul id="bookList"></ul>
   </div>
+
+  <script>
+    // Load books on page load
+    document.addEventListener('DOMContentLoaded', fetchBooks);
+
+    const form = document.getElementById('bookForm');
+    const bookList = document.getElementById('bookList');
+
+    // Handle form submission
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const formData = new FormData(form);
+      const book = {
+        title: formData.get('title'),
+        author: formData.get('author'),
+        year: formData.get('year')
+      };
+
+      try {
+        const res = await fetch('/api/add', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(book)
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+          form.reset();
+          fetchBooks(); // Reload the book list
+        } else {
+          alert(data.error || 'Failed to add book');
+        }
+      } catch (err) {
+        alert('Error: ' + err.message);
+      }
+    });
+
+    // Fetch and render books
+    async function fetchBooks() {
+      try {
+        const res = await fetch('/api/books');
+        const books = await res.json();
+
+        bookList.innerHTML = '';
+        books.forEach(book => {
+          const li = document.createElement('li');
+          li.innerHTML = `
+            <strong>${book.title}</strong> by ${book.author} (${book.year})
+            <a href="/edit.html?id=${book._id}">Edit</a> |
+            <a href="#" onclick="deleteBook('${book._id}')">Delete</a>
+          `;
+          bookList.appendChild(li);
+        });
+      } catch (err) {
+        bookList.innerHTML = '<li>Error loading books</li>';
+      }
+    }
+
+    // Delete book
+    async function deleteBook(id) {
+      if (!confirm('Are you sure you want to delete this book?')) return;
+
+      try {
+        const res = await fetch(`/api/delete/${id}`);
+        const data = await res.json();
+
+        if (res.ok) {
+          fetchBooks(); // Reload the book list
+        } else {
+          alert(data.error || 'Failed to delete');
+        }
+      } catch (err) {
+        alert('Error: ' + err.message);
+      }
+    }
+  </script>
 </body>
 </html>

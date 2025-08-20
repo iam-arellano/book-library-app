@@ -3,31 +3,86 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Book Library</title>
+  <title>Edit Book</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
   <div class="container">
-    <h1>Book Library</h1>
-    
-    <!-- Add Book Form -->
-    <form action="/add" method="POST">
-      <input type="text" name="title" placeholder="Book Title" required>
-      <input type="text" name="author" placeholder="Author" required>
-      <input type="number" name="year" placeholder="Year" required>
-      <button type="submit">Add Book</button>
+    <h1>Edit Book</h1>
+
+    <form id="editForm">
+      <input type="text" name="title" id="title" placeholder="Book Title" required>
+      <input type="text" name="author" id="author" placeholder="Author" required>
+      <input type="number" name="year" id="year" placeholder="Year" required>
+      <button type="submit">Update Book</button>
     </form>
 
-    <h2>Books List</h2>
-    <ul>
-      {{#each books}}
-        <li>
-          <strong>{{this.title}}</strong> by {{this.author}} ({{this.year}})
-          <a href="/edit/{{this._id}}">Edit</a> | 
-          <a href="/delete/{{this._id}}">Delete</a>
-        </li>
-      {{/each}}
-    </ul>
+    <br>
+    <a href="/">← Back to Library</a>
   </div>
+
+  <script>
+    const form = document.getElementById('editForm');
+    const urlParams = new URLSearchParams(window.location.search);
+    const bookId = urlParams.get('id');
+
+    // Load the book data on page load
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (!bookId) {
+        alert('Book ID not found in URL.');
+        window.location.href = '/';
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/books');
+        const books = await res.json();
+        const book = books.find(b => b._id === bookId);
+
+        if (!book) {
+          alert('Book not found.');
+          window.location.href = '/';
+          return;
+        }
+
+        // Fill the form
+        document.getElementById('title').value = book.title;
+        document.getElementById('author').value = book.author;
+        document.getElementById('year').value = book.year;
+      } catch (err) {
+        alert('Error loading book: ' + err.message);
+        window.location.href = '/';
+      }
+    });
+
+    // Handle update submit
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const updatedBook = {
+        title: form.title.value,
+        author: form.author.value,
+        year: form.year.value
+      };
+
+      try {
+        const res = await fetch(`/api/edit/${bookId}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updatedBook)
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+          alert('Book updated successfully!');
+          window.location.href = '/';
+        } else {
+          alert(data.error || 'Failed to update book');
+        }
+      } catch (err) {
+        alert('Error: ' + err.message);
+      }
+    });
+  </script>
 </body>
 </html>
