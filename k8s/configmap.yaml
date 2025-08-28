@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: book-mongodb-configmap
+data:
+  MONGO_HOST: book-mongodb-service       # name of your service in mongodb-deployment
+  MONGO_PORT: "27017"
+  MONGO_DB: bookLibrary
+

@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: book-mongodbexpress-deployment
+  labels:
+    app: book-mongodbexpress
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: book-mongodbexpress
+  template:
+    metadata:
+      labels:
+        app: book-mongodbexpress
+    spec:
+      containers:
+      - name: cmongodbexpress
+        image: raemondarellano/mongo-express-app:latest
+        ports:
+        - containerPort: 8081
+        env:
+
+        - name: ME_CONFIG_MONGODB_ADMINUSERNAME          # MONGO USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: book-mongodb-secret
+              key: MONGO_USER
+
+        - name: ME_CONFIG_MONGODB_ADMINPASSWORD       # MONGO PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: book-mongodb-secret
+              key: MONGO_PASS
+
+        - name: ME_CONFIG_MONGODB_SERVER      #  MONGO HOST
+          valueFrom:
+             configMapKeyRef:
+              name: book-mongodb-configmap
+              key: MONGO_HOST
+
+
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: book-mongodbexpress-service
+spec:
+  selector:
+    app: book-mongodbexpress
+  type: LoadBalancer
+  ports:
+    - port: 8081
+      targetPort: 8081
+#      nodePort: 30000

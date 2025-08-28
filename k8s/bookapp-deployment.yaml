@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: book-deployment
+  labels:
+    app: book-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: book-app
+  template:
+    metadata:
+      labels:
+        app: book-app
+    spec:
+      containers:
+      - name: bookappcontainer
+        image: raemondarellano/book-library:latest
+        ports:
+        - containerPort: 3000
+        env:
+
+        - name: MONGO_HOST        #mongo host
+          valueFrom:
+            configMapKeyRef:
+             name: book-mongodb-configmap
+             key: MONGO_HOST
+
+        - name: MONGO_PORT        #mongo port
+          valueFrom:
+            configMapKeyRef:
+             name: book-mongodb-configmap
+             key: MONGO_PORT
+
+
+        - name: MONGO_DB     # mongo database name
+          valueFrom:
+            configMapKeyRef:
+              name: book-mongodb-configmap
+              key: MONGO_DB
+
+
+        - name: MONGO_USER         #mongo username
+          valueFrom:
+            secretKeyRef:
+              name: book-mongodb-secret
+              key: MONGO_USER
+
+        - name: MONGO_PASS     #mongo password
+          valueFrom:
+            secretKeyRef:
+              name: book-mongodb-secret
+              key: MONGO_PASS
+
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: book-service
+spec:
+  selector:
+    app: book-app
+  type: LoadBalancer
+  ports:
+    - port: 3000
+      targetPort: 3000
+#      nodePort: 30000

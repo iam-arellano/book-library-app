@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: book-mongodb-deployment
+  labels:
+    app: book-mongodb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: book-mongodb
+  template:
+    metadata:
+      labels:
+        app: book-mongodb
+    spec:
+      containers:
+      - name: containermongodbbook
+        image: raemondarellano/mongo-app:latest
+        ports:
+        - containerPort: 27017
+        env:
+
+        - name: MONGO_INITDB_ROOT_USERNAME       #USERNAME IN MONGO
+          valueFrom:
+            secretKeyRef:
+              name: book-mongodb-secret
+              key: MONGO_USER
+
+        - name: MONGO_INITDB_ROOT_PASSWORD          #PASSWORD IN MONGO
+          valueFrom:
+            secretKeyRef:
+              name: book-mongodb-secret
+              key: MONGO_PASS
+
+        - name: MONGO_INITDB_DATABASE              # MONGO DATABASE NAME
+          valueFrom:
+            configMapKeyRef:
+              name: book-mongodb-configmap
+              key: MONGO_DB
+
+
+        volumeMounts:                              # VOLUME FOR DATABASE
+          - name: mongodb-storage
+            mountPath: /data/db
+      volumes:
+        - name: mongodb-storage
+          persistentVolumeClaim:
+            claimName: book-mongodb-pvc
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: book-mongodb-service
+  labels:
+    app: book-mongodb
+spec:
+  selector:
+    app: book-mongodb
+  ports:
+    - port: 27017
+      targetPort: 27017
