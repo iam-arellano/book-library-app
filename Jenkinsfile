@@ -102,7 +102,7 @@ pipeline {
         stage("Update the Deployment Tags") {
             steps {
                 sh """
-                   cd k8s_yaml                                     
+                   cd k8s                                    
                    cat bookapp-deployment.yaml
                    sed -i 's/${APP_NAME}.*/${APP_NAME}:${IMAGE_TAG}/g' bookapp-deployment.yaml
                    cat bookapp-deployment.yaml
