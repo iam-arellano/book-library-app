@@ -99,31 +99,31 @@ pipeline {
         
         
               // Update Deployment yaml
-        // stage("Update the Deployment Tags") {
-        //     steps {
-        //         sh """
-        //            cd k8s_yaml                                     
-        //            cat nodejs-deployment.yaml
-        //            sed -i 's/${APP_NAME}.*/${APP_NAME}:${IMAGE_TAG}/g' nodejs-deployment.yaml
-        //            cat nodejs-deployment.yaml
-        //         """
-        //          }
-        //      }
+        stage("Update the Deployment Tags") {
+            steps {
+                sh """
+                   cd k8s_yaml                                     
+                   cat bookapp-deployment.yaml
+                   sed -i 's/${APP_NAME}.*/${APP_NAME}:${IMAGE_TAG}/g' bookapp-deployment.yaml
+                   cat bookapp-deployment.yaml
+                """
+                 }
+             }
         
-        //      // Push deployment to Git
-        // stage("Push the changed deployment file to Git") {
-        //     steps {
-        //         sh """
-        //            git config --global user.name "raemond.arellano01@gmail.com"
-        //            git config --global user.email "raemond.arellano01@gmail.com"
-        //            git add k8s_yaml/nodejs-deployment.yaml
-        //            git commit -m "Updated Deployment Manifest"
-        //         """
-        //         withCredentials([gitUsernamePassword(credentialsId: 'github_token', gitToolName: 'Default')]) {
-        //           sh "git push https://github.com/iam-arellano/node-js-app.git  master"
-        //         }
-        //     }
-        // }
+             // Push deployment to Git
+        stage("Push the changed deployment file to Git") {
+            steps {
+                sh """
+                   git config --global user.name "raemond.arellano01@gmail.com"
+                   git config --global user.email "raemond.arellano01@gmail.com"
+                   git add k8s/bookapp-deployment.yaml
+                   git commit -m "Updated Deployment Manifest"
+                """
+                withCredentials([gitUsernamePassword(credentialsId: 'github_token', gitToolName: 'Default')]) {
+                  sh "git push https://github.com/iam-arellano/book-library-app.git  master"
+                }
+            }
+        }
         
 
     }
