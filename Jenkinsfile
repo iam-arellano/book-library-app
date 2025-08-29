@@ -120,7 +120,7 @@ pipeline {
                    git commit -m "Updated Deployment Manifest"
                 """
                 withCredentials([gitUsernamePassword(credentialsId: 'github_token', gitToolName: 'Default')]) {
-                  sh "git push https://github.com/iam-arellano/book-library-app.git  master"
+                  sh "git push https://github.com/iam-arellano/book-library-app.git  main"
                 }
             }
         }
