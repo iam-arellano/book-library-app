@@ -9,7 +9,7 @@ spec:
   source:
     repoURL: https://github.com/iam-arellano/book-library-app.git
     targetRevision: HEAD
-    path: k8s_yaml/                   # path of your yaml manifest
+    path: k8s/                   # path of your yaml manifest
   destination:
     server: https://kubernetes.default.svc
     namespace: bookapp
