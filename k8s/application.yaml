@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: myapp-book-app
+  namespace: argocd
+spec:
+  project: default
+
+  source:
+    repoURL: https://github.com/iam-arellano/book-library-app.git
+    targetRevision: HEAD
+    path: k8s_yaml/                   # path of your yaml manifest
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: bookapp
+  syncPolicy:
+    syncOptions:
+    - CreateNamespace=true
+
+    automated:                                                              # to automaticaly sync  any change in the git repository
+      selfHeal: true                                                        # selfheal true is used to undoes manual config in yaml manifest
+      prune: false
