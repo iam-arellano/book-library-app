@@ -3,6 +3,7 @@ node_modules
 .dockerignore
 docker-compose.yml 
 Dockerfile
-k8s_yaml
+k8s
 Jenkinsfile
 arellano.png
+readme.md
