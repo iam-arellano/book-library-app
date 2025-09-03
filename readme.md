@@ -65,7 +65,7 @@ The application is deployed on a **Kubernetes** cluster using **ArgoCD** with Gi
 
 Below is the ArgoCD visual deployment tree showing how the book app components are deployed and synced.
 
-![ArgoCD Deployment Screenshot](/argocd-screenshot.png)
+![ArgoCD Deployment Screenshot](/argocd-screenshot.jpg)
 
 
 
