@@ -63,5 +63,11 @@ A simple and robust **Book Library** application built with **Node.js**, allowin
 The application is deployed on a **Kubernetes** cluster using **ArgoCD** with GitOps principles. The manifest repo is automatically updated and synced.
 
 
+Below is the ArgoCD visual deployment tree showing how the book app components are deployed and synced.
+
+![ArgoCD Deployment Screenshot](/argocd-screenshot.png)
+
+
+
 
 
