@@ -40,6 +40,14 @@ A simple and robust **Book Library** application built with **Node.js**, allowin
    - Builds Docker image
    - Scans image with Trivy
    - Pushes image to DockerHub
+
+---
+## 📸 Jenkins Pipeline
+
+![Jenkins Pipeline](./jenkins-pipeline.png)
+
+---
+
 3. ArgoCD updates the Kubernetes deployment automatically with the new image.
 
 ---
