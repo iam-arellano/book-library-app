@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: bookappcontainer
-        image: raemondarellano/book-library:1.0.0-9
+        image: raemondarellano/book-library:1.0.0-1
         ports:
         - containerPort: 3000
         env:
