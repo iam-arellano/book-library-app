@@ -25,7 +25,7 @@ pipeline {
         
         stage("Checkout from SCM"){
             steps {
-                git branch: 'main', url: 'https://github.com/iam-arellano/book-library-app.git''
+               git branch: 'main', url: 'https://github.com/iam-arellano/book-library-app.git'
                     echo 'Git Checkout Completed'
             }
         }
